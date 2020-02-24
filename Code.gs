@@ -1,12 +1,16 @@
 /*
 Daily Reporter
-V0.1.3
+V0.1.4
 Author: Wayne Hsiao <chronicqazxc@gmail.com>
 */
 
 function main() {
   var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var today = new Date();
+  // Suppose the working day is weekday.
+  if (today.getDay()>5 || today.getDay()==0) {
+    return;
+  }
   var formattedDate = Utilities.formatDate(new Date(), timeZone, "yyyy-MM-dd");
   var todaySheet = activeSpreadsheet.getSheetByName(formattedDate);
 
@@ -59,9 +63,14 @@ function main() {
     range.setValue(members()[i])    
   }
   
-  // Set yesterday value
-  var previousDate = Utilities.formatDate(new Date(today.getTime()-(24*3600*1000)), timeZone, "yyyy-MM-dd");
-//  Logger.log(previousDate);
+  // Set previous workday's value
+  var previousDate;
+  if (today.getDay() == 1) {
+    previousDate = getLastDateBy(today, 3);
+  } else {
+    previousDate = getLastDateBy(today, 1);
+  }
+  //  Logger.log(previousDate);
   var previousDaySheet = activeSpreadsheet.getSheetByName(previousDate);
   if (previousDaySheet != null) {
     var lastRow = activeSpreadsheet.getLastRow();
@@ -199,4 +208,18 @@ function composeHtmlMsg(headers,values,date){
 
 function replaceBreakline(originString) {
   return originString.replace(/\r\n|\r|\n/g, '<br>');
+}
+
+function getLastDateBy(from, amountOfDay) {
+  var day = new Date();
+  var lastFriday = subDaysFromDate(from,amountOfDay)
+  var formattedDate = Utilities.formatDate(lastFriday, timeZone, "yyyy-MM-dd");
+  Logger.log(formattedDate);
+  return formattedDate;
+}
+
+function subDaysFromDate(date,d){
+  // d = number of day ro substract and date = start date
+  var result = new Date(date.getTime()-d*(24*3600*1000));
+  return result
 }
