@@ -1,17 +1,19 @@
 /*
 Daily Reporter
-V0.1.4
-Author: Wayne Hsiao <chronicqazxc@gmail.com>
+V0.1.5
+Author: Wayne Hsiao <Wayne.Hsiao@disney.com>
 */
 
+var today = new Date();
+var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+var previousWorkdayReports = {};
+
 function main() {
-  var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  var today = new Date();
   // Suppose the working day is weekday.
   if (today.getDay()>5 || today.getDay()==0) {
     return;
   }
-  var formattedDate = Utilities.formatDate(new Date(), timeZone, "yyyy-MM-dd");
+  var formattedDate = Utilities.formatDate(today, timeZone, "yyyy-MM-dd");
   var todaySheet = activeSpreadsheet.getSheetByName(formattedDate);
 
   if (todaySheet != null) {
@@ -63,20 +65,38 @@ function main() {
     range.setValue(members()[i])    
   }
   
+  // Fill out previous workday reports.
+  setupPreviousWorkdayCache(today);
+  var lastRow = todaySheet.getLastRow();
+  for (row = 3; row <= lastRow; row++) {
+    var reporter = todaySheet.getRange(row, 1).getValues();
+    todaySheet.getRange(row, 2).setValue(previousWorkdayReports[reporter]);
+  }
+}
+
+function setupPreviousWorkdayCache(date) {
+  var previousWorkdaySheet = getPreviousWorkdaySheet(date);
+  if (previousWorkdaySheet != null) {
+    var lastRow = previousWorkdaySheet.getLastRow();
+    for (row = 3; row <= lastRow; row++ ) {
+      var reporter = previousWorkdaySheet.getRange(row, 1).getValue();
+      var report = previousWorkdaySheet.getRange(row, 3).getValue();      
+      previousWorkdayReports[reporter] = report;
+    }
+  }
+}
+
+function getPreviousWorkdaySheet(date) {
   // Set previous workday's value
   var previousDate;
-  if (today.getDay() == 1) {
-    previousDate = getLastDateBy(today, 3);
+  if (date.getDay() == 1) {
+    previousDate = getLastDateBy(date, 3);
   } else {
-    previousDate = getLastDateBy(today, 1);
+    previousDate = getLastDateBy(date, 1);
   }
-  //  Logger.log(previousDate);
+  // Logger.log(previousDate);
   var previousDaySheet = activeSpreadsheet.getSheetByName(previousDate);
-  if (previousDaySheet != null) {
-    var lastRow = activeSpreadsheet.getLastRow();
-    var previousDayValues = previousDaySheet.getRange("C3:C" + lastRow).getValues();
-    todaySheet.getRange("B3:B" + lastRow).setValues(previousDayValues)
-  }
+  return previousDaySheet;
 }
 
 function deleteAll() {
@@ -193,7 +213,7 @@ function composeHtmlMsg(headers,values,date){
   message += '</table><br>';
   
   message += 'Any questions or requests please let me know, thanks.<br><br>';
-  message += '<strong>Regards,</strong><br>';
+  message += '<strong>Regards,</strong></br>';
   message += '<strong>' + senderFirstName + '&nbsp;' + senderLastName + '</strong><br>';
   message += '<p>_____________________________________________________________________________</p>';
   message += senderTitle + '<br>';
@@ -222,4 +242,19 @@ function subDaysFromDate(date,d){
   // d = number of day ro substract and date = start date
   var result = new Date(date.getTime()-d*(24*3600*1000));
   return result
+}
+
+// Unit tests
+// TODO: https://www.tothenew.com/blog/how-to-test-google-apps-script-using-qunit/
+function testFindIndexOfReporter() {
+  var testDate = new Date('February 25, 2020 10:00:00 +0800');
+  setupPreviousWorkdayCache(testDate);
+  var previousWorkdayReport = previousWorkdayReports['Foo Bar'];
+  if (previousWorkdayReport == 'Test content.') {
+    Logger.log('testFindIndexOfReporter success.');
+  } else {
+    Logger.log('testFindIndexOfReporter failed.');
+    Logger.log(previousWorkdayReport);
+  }
+  
 }
