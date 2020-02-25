@@ -52,7 +52,7 @@ Open the Constant.gs and modify following constants.
 (Must select main function as the function to run.)
 ## Reminder
 **Clear sheet from time to time**
-Since Google sheet has limit amount of sheet, you may want to set a timer trigger for the `deleteAllExceptLast` function to clean up sheets except specific days.
+Since Google sheet has limit amount of sheet, you may want to set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days.
 ## Author
 [Wayne Hsiao](mailto:chronicqazxc@gmail.com)
 
