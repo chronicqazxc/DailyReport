@@ -114,11 +114,11 @@ function deleteAll() {
 
 function deleteAllExceptLast(dayToSubtract) {
   var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  var remindDays = new Array(dayToSubtract);
+  var remainDays = new Array(dayToSubtract);
   var formattedToday = Utilities.formatDate(today, timeZone, "yyyy-MM-dd");
-  remindDays[0] = formattedToday;
+  remainDays[0] = formattedToday;
   for (i=1; i < dayToSubtract; i++) {
-    remindDays[i] = getLastFormattedDateBy(today, i);
+    remainDays[i] = getLastFormattedDateBy(today, i);
   }
   
   activeSpreadsheet.getSheets().forEach (function (sheet) {
