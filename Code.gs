@@ -1,7 +1,8 @@
 /*
 Daily Reporter
-V0.1.5
-Author: Wayne Hsiao <Wayne.Hsiao@disney.com>
+https://github.com/chronicqazxc/DailyReport
+V0.1.6
+Author: Wayne Hsiao <chronicqazxc@gmail.com>
 */
 
 var today = new Date();
@@ -90,9 +91,9 @@ function getPreviousWorkdaySheet(date) {
   // Set previous workday's value
   var previousDate;
   if (date.getDay() == 1) {
-    previousDate = getLastDateBy(date, 3);
+    previousDate = getLastFormattedDateBy(date, 3);
   } else {
-    previousDate = getLastDateBy(date, 1);
+    previousDate = getLastFormattedDateBy(date, 1);
   }
   // Logger.log(previousDate);
   var previousDaySheet = activeSpreadsheet.getSheetByName(previousDate);
@@ -111,21 +112,17 @@ function deleteAll() {
     })
 }
 
-function deleteAllExceptLastTen() {
+function deleteAllExceptLast(dayToSubtract) {
   var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  var lastTen = ["2019-08-30",
-                "2019-08-29",
-                "2019-08-28",
-                "2019-08-27",
-                "2019-08-26",
-                "2019-08-25",
-                "2019-08-24",
-                "2019-08-23",
-                "2019-08-22",
-                "2019-08-21"];
+  var remindDays = new Array(dayToSubtract);
+  var formattedToday = Utilities.formatDate(today, timeZone, "yyyy-MM-dd");
+  remindDays[0] = formattedToday;
+  for (i=1; i < dayToSubtract; i++) {
+    remindDays[i] = getLastFormattedDateBy(today, i);
+  }
   
   activeSpreadsheet.getSheets().forEach (function (sheet) {
-    if (lastTen.indexOf(sheet.getName()) == -1 && activeSpreadsheet.getSheets().length != 1) {
+    if (remindDays.indexOf(sheet.getName()) == -1 && activeSpreadsheet.getSheets().length != 1) {
       //Logger.log(sheet.getName());
       activeSpreadsheet.deleteSheet(sheet)
     }    
@@ -161,6 +158,79 @@ function sendMail(){
 
 }
 
+function composeMessage(headers,values){
+  var message = 'Here are the data you submitted :\n'
+  for(var c=0;c<values[0].length;++c){
+    message+='\n'+headers[0][c]+' : '+values[0][c]
+  }
+  return message;
+}
+
+function composeHtmlMsg(headers,values,date){
+  
+  var message = 'Hi all, <br><br>Here is the <a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '?usp=sharing">' + teamName + ' Daily Report</a> ('+date+')'+':<br><br><table style="border-collapse:collapse;width:100%" border = 1 cellpadding = 5>';
+  
+  message += '<tr>'
+  for (var i=0;i<headers[0].length;i++) {
+    message += '<th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align: left;background-color: #4CAF50;color: white;">'+headers[0][i]+'</th>'
+  }
+  message += '</tr>'  
+  for(var c=0;c<values.length;++c) {
+    message+='<tr><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][0])+'</td><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][1])+'</td><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][2])+'</td><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][3])+'</td></tr>'
+  }
+  message += '</table><br>';
+  
+  message += 'Any questions or requests please let me know, thanks.<br><br>';
+  message += '<strong>Regards,</strong><br>';
+  message += '<strong>' + senderFirstName + '&nbsp;' + senderLastName + '</strong><br>';
+  message += '<p>_____________________________________________________________________________</p>';
+  message += senderTitle + '<br>';
+  message += companyName + '<br>';
+  message += 'Address: ' + companyAddress + '<br>';
+  message += 'Office:&nbsp; ' + senderPhoneNumber + ' | Email:&nbsp;<a href="mailto:' + senderEmail + '">' + senderEmail + '</a><br>';
+  message += '<a href="' + companyWebSite + '">' + companyWebSiteName + '</a><br>';
+  message += '&nbsp;<img src="' + companyIconURL + '" alt="" width="122" height="73" /><br>';
+
+  return message
+}
+
+function replaceBreakline(originString) {
+  return originString.replace(/\r\n|\r|\n/g, '<br>');
+}
+
+function getLastFormattedDateBy(from, amountOfDay) {
+  var day = new Date();
+  var lastFriday = subDaysFromDate(from,amountOfDay)
+  var formattedDate = Utilities.formatDate(lastFriday, timeZone, "yyyy-MM-dd");
+//  Logger.log(formattedDate);
+  return formattedDate;
+}
+
+function subDaysFromDate(date,d){
+  // d = number of day ro substract and date = start date
+  var result = new Date(date.getTime()-d*(24*3600*1000));
+  return result
+}
+
+// Unit tests
+// TODO: https://www.tothenew.com/blog/how-to-test-google-apps-script-using-qunit/
+function testFindIndexOfReporter() {
+  var testDate = new Date('February 25, 2020 10:00:00 +0800');
+  setupPreviousWorkdayCache(testDate);
+  var previousWorkdayReport = previousWorkdayReports['Foo Bar'];
+  if (previousWorkdayReport == 'Test content.') {
+    Logger.log('testFindIndexOfReporter success.');
+  } else {
+    Logger.log('testFindIndexOfReporter failed.');
+    Logger.log(previousWorkdayReport);
+  }
+  
+}
+
+function testDeleteAllExceptLast() {
+  deleteAllExceptLast(2);
+}
+
 function sendMailTest(){
   var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var formattedDate = Utilities.formatDate(new Date(), timeZone, "yyyy-MM-dd");  
@@ -188,73 +258,4 @@ function sendMailTest(){
     subject: subject,
     htmlBody: messageHTML
    });
-}
-
-function composeMessage(headers,values){
-  var message = 'Here are the data you submitted :\n'
-  for(var c=0;c<values[0].length;++c){
-    message+='\n'+headers[0][c]+' : '+values[0][c]
-  }
-  return message;
-}
-
-function composeHtmlMsg(headers,values,date){
-  
-  var message = 'Hi all, <br><br>Here is the <a href="' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '?usp=sharing">' + teamName + ' Daily Report</a> ('+date+')'+':<br><br><table style="border-collapse:collapse;width:100%" border = 1 cellpadding = 5>';
-  
-  message += '<tr>'
-  for (var i=0;i<headers[0].length;i++) {
-    message += '<th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align: left;background-color: #4CAF50;color: white;">'+headers[0][i]+'</th>'
-  }
-  message += '</tr>'  
-  for(var c=0;c<values.length;++c) {
-    message+='<tr><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][0])+'</td><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][1])+'</td><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][2])+'</td><td style="border:1px solid #ddd;padding:8px">'+replaceBreakline(values[c][3])+'</td></tr>'
-  }
-  message += '</table><br>';
-  
-  message += 'Any questions or requests please let me know, thanks.<br><br>';
-  message += '<strong>Regards,</strong></br>';
-  message += '<strong>' + senderFirstName + '&nbsp;' + senderLastName + '</strong><br>';
-  message += '<p>_____________________________________________________________________________</p>';
-  message += senderTitle + '<br>';
-  message += companyName + '<br>';
-  message += 'Address: ' + companyAddress + '<br>';
-  message += 'Office:&nbsp; ' + senderPhoneNumber + ' | Email:&nbsp;<a href="mailto:' + senderEmail + '">' + senderEmail + '</a><br>';
-  message += '<a href="' + companyWebSite + '">' + companyWebSiteName + '</a><br>';
-  message += '&nbsp;<img src="' + companyIconURL + '" alt="" width="122" height="73" /><br>';
-
-  return message
-}
-
-function replaceBreakline(originString) {
-  return originString.replace(/\r\n|\r|\n/g, '<br>');
-}
-
-function getLastDateBy(from, amountOfDay) {
-  var day = new Date();
-  var lastFriday = subDaysFromDate(from,amountOfDay)
-  var formattedDate = Utilities.formatDate(lastFriday, timeZone, "yyyy-MM-dd");
-  Logger.log(formattedDate);
-  return formattedDate;
-}
-
-function subDaysFromDate(date,d){
-  // d = number of day ro substract and date = start date
-  var result = new Date(date.getTime()-d*(24*3600*1000));
-  return result
-}
-
-// Unit tests
-// TODO: https://www.tothenew.com/blog/how-to-test-google-apps-script-using-qunit/
-function testFindIndexOfReporter() {
-  var testDate = new Date('February 25, 2020 10:00:00 +0800');
-  setupPreviousWorkdayCache(testDate);
-  var previousWorkdayReport = previousWorkdayReports['Foo Bar'];
-  if (previousWorkdayReport == 'Test content.') {
-    Logger.log('testFindIndexOfReporter success.');
-  } else {
-    Logger.log('testFindIndexOfReporter failed.');
-    Logger.log(previousWorkdayReport);
-  }
-  
 }
