@@ -54,7 +54,13 @@ Open the Constant.gs and modify following constants.
 ![Trigger](/.assets/Trigger.png)
 (Must select main function as the function to run.)
 ## Custom Actions
-
+Must perform function `onOpen` to add the custom menu and actions to your sheet.
+![Trigger](/.assets/custom_actions.png)
+|Function|Description|
+|--|--|
+|Generate today's sheet|Generate new sheet and import content from previous workday.|
+|Fulfill previous content|Enter a specific date and import content from that.|
+|Send today's email|Send out today's report.|
 ## Reminder
 **Clear sheet from time to time**
 Since Google sheet has limit amount of sheet, you may want to set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days.
