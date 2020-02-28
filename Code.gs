@@ -1,13 +1,51 @@
 /*
 Daily Reporter
 https://github.com/chronicqazxc/DailyReport
-V0.1.6
+V0.1.7
 Author: Wayne Hsiao <chronicqazxc@gmail.com>
 */
 
 var today = new Date();
 var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 var previousWorkdayReports = {};
+
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  // Or DocumentApp or FormApp.
+  ui.createMenu('Actions')
+      .addItem('Generate today\'s sheet', 'main')
+      .addItem('Fulfill previsou content', 'fulfillPreviousContentUI')
+      .addItem('Send today\'s email', 'sendMail')
+      .addToUi();
+}
+
+function fulfillPreviousContentUI() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.prompt('Please enter then date you want to import. (e.g. 2020-02-25)', ui.ButtonSet.YES_NO);
+
+  if (response.getSelectedButton() == ui.Button.YES) {
+    
+    var formattedDate = Utilities.formatDate(today, timeZone, "yyyy-MM-dd");
+    var todaySheet = activeSpreadsheet.getSheetByName(formattedDate);
+    var previousDate = dateFrom(response.getResponseText());
+    setupPreviousWorkdayCache(previousDate);
+    var lastRow = todaySheet.getLastRow();
+    for (row = 3; row <= lastRow; row++) {
+      var reporter = todaySheet.getRange(row, 1).getValues();
+      var range = todaySheet.getRange(row, 2);
+      if (range.getValue() == '') {
+        range.setValue(previousWorkdayReports[reporter]);
+      }
+    }
+    setDateTitle(response.getResponseText(), formattedDate);
+    
+
+  } else if (response.getSelectedButton() == ui.Button.NO) {
+
+  } else {
+    Logger.log('The user clicked the close button in the dialog\'s title bar.');
+  }
+}
 
 function main() {
   // Suppose the working day is weekday.
@@ -73,6 +111,19 @@ function main() {
     var reporter = todaySheet.getRange(row, 1).getValues();
     todaySheet.getRange(row, 2).setValue(previousWorkdayReports[reporter]);
   }
+  
+  // Set date title.
+  if (getPreviousWorkdaySheet(today) != null) {
+      setDateTitle(getPreviousWorkdaySheet(today).getSheetName(), formattedDate);
+  }
+}
+
+function setDateTitle(previous, today) {
+  var todaySheet = activeSpreadsheet.getSheetByName(today);
+  var previousDayRange = todaySheet.getRange(2, 2);
+  previousDayRange.setValue('Previous (' + previous + ')');
+  var todayRange = todaySheet.getRange(2, 3);    
+  todayRange.setValue('Today (' + today + ')');
 }
 
 function setupPreviousWorkdayCache(date) {
@@ -212,6 +263,14 @@ function subDaysFromDate(date,d){
   return result
 }
 
+function dateFrom(dateString) {
+  var dateComponent = dateString.split("-");
+  var year = dateComponent[0];
+  var month = dateComponent[1];
+  var day = dateComponent[2];
+  return new Date(year, month - 1, day)
+}
+
 // Unit tests
 // TODO: https://www.tothenew.com/blog/how-to-test-google-apps-script-using-qunit/
 function testFindIndexOfReporter() {
@@ -258,4 +317,8 @@ function sendMailTest(){
     subject: subject,
     htmlBody: messageHTML
    });
+}
+
+function testDateFrom() {
+  Logger.log(dateFrom('2020-02-25'));
 }
