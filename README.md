@@ -36,6 +36,8 @@ Open the Constant.gs and modify following constants.
 ## Functions
 |Function|Description|
 |--|--|
+|`onOpen`|Run this function to add custom menu and actions to your sheet.|
+|`fulfillPreviousContentUI`|Used by menu, allow user enter specific date then import content from that date.|
 |`main`|Generate today's sheet and hide all sheets except today's sheet.|
 |`setupPreviousWorkdayCache(date)`|Cache previous workday's report based on a specific date.|
 |`getPreviousWorkdaySheet(date)`|Get the previous workday's sheet based on a specific date.|
@@ -47,9 +49,12 @@ Open the Constant.gs and modify following constants.
 |`replaceBreakline(originString)`|Transform symbol to HTML symbol.|
 |`getLastFormattedDateBy(from, amountOfDay)`|Get formatted date from a specific date.|
 |`subDaysFromDate(date,d)`|Substract a amount of days from a specific date.|
+|`dateFrom(dateString)`|Date from string, must follow format year-month-day e.g. 2020-02-25.|
 ## Setup Trigger
 ![Trigger](/.assets/Trigger.png)
 (Must select main function as the function to run.)
+## Custom Actions
+
 ## Reminder
 **Clear sheet from time to time**
 Since Google sheet has limit amount of sheet, you may want to set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days.
