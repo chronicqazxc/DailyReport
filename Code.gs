@@ -1,7 +1,7 @@
 /*
 Daily Reporter
 https://github.com/chronicqazxc/DailyReport
-V0.1.7
+V0.1.8
 Author: Wayne Hsiao <chronicqazxc@gmail.com>
 */
 
@@ -16,6 +16,7 @@ function onOpen() {
       .addItem('Generate today\'s sheet', 'main')
       .addItem('Fulfill previsou content', 'fulfillPreviousContentUI')
       .addItem('Send today\'s email', 'sendMail')
+      .addItem('Adelete sheets', 'deleteAllExceptUI')
       .addToUi();
 }
 
@@ -42,6 +43,19 @@ function fulfillPreviousContentUI() {
 
   } else if (response.getSelectedButton() == ui.Button.NO) {
 
+  } else {
+    Logger.log('The user clicked the close button in the dialog\'s title bar.');
+  }
+}
+
+function deleteAllExceptUI() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.prompt('Delete all sheets except the last number of days.', ui.ButtonSet.YES_NO);
+
+  if (response.getSelectedButton() == ui.Button.YES) {
+    deleteAllExceptLast(response.getResponseText());
+  } else if (response.getSelectedButton() == ui.Button.NO) {
+    
   } else {
     Logger.log('The user clicked the close button in the dialog\'s title bar.');
   }
@@ -173,7 +187,7 @@ function deleteAllExceptLast(dayToSubtract) {
   }
   
   activeSpreadsheet.getSheets().forEach (function (sheet) {
-    if (remindDays.indexOf(sheet.getName()) == -1 && activeSpreadsheet.getSheets().length != 1) {
+    if (remainDays.indexOf(sheet.getName()) == -1 && activeSpreadsheet.getSheets().length != 1) {
       //Logger.log(sheet.getName());
       activeSpreadsheet.deleteSheet(sheet)
     }    
