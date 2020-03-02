@@ -37,7 +37,7 @@ Open the Constant.gs and modify following constants.
 |Function|Description|
 |--|--|
 |`onOpen`|Run this function to add custom menu and actions to your sheet.|
-|`fulfillPreviousContentUI`|Used by menu, allow user enter specific date then import content from that date.|
+|`fillOutPreviousContentUI`|Triggered by user under the menu, allow user enter specific date then import content from that date.|
 |`main`|Generate today's sheet and hide all sheets except today's sheet.|
 |`setupPreviousWorkdayCache(date)`|Cache previous workday's report based on a specific date.|
 |`getPreviousWorkdaySheet(date)`|Get the previous workday's sheet based on a specific date.|
@@ -59,7 +59,7 @@ Must perform function `onOpen` to add the custom menu and actions to your sheet.
 |Function|Description|
 |--|--|
 |Generate today's sheet|Generate new sheet and import content from previous workday.|
-|Fulfill previous content|Enter a specific date and import content from that.|
+|Fill out previous content|Enter a specific date and import content from that.|
 |Send today's email|Send out today's report.|
 |Adelete sheets|Delete all sheets except the last number of days.|
 ## Reminder
