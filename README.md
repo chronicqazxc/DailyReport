@@ -64,7 +64,7 @@ Must perform function `onOpen` to add the custom menu and actions to your sheet.
 |Adelete sheets|Delete all sheets except the last number of days.|
 ## Reminder
 **Clear sheet from time to time**
-Since Google sheet has limit amount of sheet, you may want to set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days.
+Since Google sheet has limit amount of sheet, you may want to either 1) set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days or 2) trigger the `Delete Sheet` function manually in the menu.
 ## Author
 [Wayne Hsiao](mailto:chronicqazxc@gmail.com)
 
