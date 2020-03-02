@@ -14,13 +14,13 @@ function onOpen() {
   // Or DocumentApp or FormApp.
   ui.createMenu('Actions')
       .addItem('Generate today\'s sheet', 'main')
-      .addItem('Fulfill previsou content', 'fulfillPreviousContentUI')
+      .addItem('Fill out previsou content', 'fillOutPreviousContentUI')
       .addItem('Send today\'s email', 'sendMail')
       .addItem('Adelete sheets', 'deleteAllExceptUI')
       .addToUi();
 }
 
-function fulfillPreviousContentUI() {
+function fillOutPreviousContentUI() {
   var ui = SpreadsheetApp.getUi();
   var response = ui.prompt('Please enter then date you want to import. (e.g. 2020-02-25)', ui.ButtonSet.YES_NO);
 
