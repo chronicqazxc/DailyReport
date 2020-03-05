@@ -62,9 +62,9 @@ Must perform function `onOpen` to add the custom menu and actions to your sheet.
 |Fill out previous content|Enter a specific date and import content from that.|
 |Send today's email|Send out today's report.|
 |Adelete sheets|Delete all sheets except the last number of days.|
-## Reminder
+## Exception: This action would increase the number of cells in the workbook above the limit of 5000000 cells.
 **Clear sheet from time to time**
-Since Google sheet has limit amount of sheet, you may want to either 1) set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days or 2) trigger the `Delete Sheet` function manually in the menu.
+Since Google sheet has limit amount of cells of 5000000, you may want to either 1) set a timer trigger for the `deleteAllExceptLast(dayToSubtract)` function to clean up sheets except specific days or 2) trigger the `Delete Sheet` function manually in the menu.
 ## Author
 [Wayne Hsiao](mailto:chronicqazxc@gmail.com)
 
